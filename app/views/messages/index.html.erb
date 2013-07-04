@@ -1,0 +1,61 @@
+<h1>Listing messages</h1>
+
+<table border=1 cellpadding=10>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Message</th>
+    </tr>
+  </thead>
+
+  <tbody id="message-box">
+    <% @messages.each do |message| %>
+      <tr data-id="<%= message.id %>">
+        <td><%= message.name %></td>
+        <td><%= message.message %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<h1>New message</h1>
+
+<%= render 'form' %>
+
+<br />
+
+<input type="hidden" id="lastId" value="<%= @messages.last.id unless @messages.blank? %>" />
+
+<input type="hidden" id="listen_url" value="<%= stream_url %>" />
+
+<script type="text/javascript">
+  var lastId = $("#lastId").val()
+  var myEvent
+  if(typeof(EventSource) !== "undefined"){
+    var source = new EventSource($("#listen_url").val())
+
+    source.onopen = function(event){
+      // Connection was opened.
+      // $("#result").append("Opened" + "<br>")
+    };
+
+    source.onmessage = function(event){
+      myEvent = event
+      if(lastId != event.lastEventId){
+        console.log(event)
+        lastId = event.lastEventId
+        message = JSON.parse(event.data)
+        $("#message-box").append("<tr data-id='"+lastId+"'><td>"+message.name+"</td><td>"+message.message+"</td></tr>")
+      }
+    };
+
+    source.onerror = function(event){
+      // Connection was closed.
+      // $("#result").append("Closed" + "<br>")
+    };
+  } else {
+    $("#result").append("Sorry, your browser does not support server-sent events...")
+  }
+</script>

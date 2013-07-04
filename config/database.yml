@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  reconnect: false
+  host: localhost
+  username: cybergarage
+  password: 123456
+
+development:
+  <<: *default
+  database: pencet_development
+
+test:
+  <<: *default
+  database: pencet_test
+
+production:
+  <<: *default
+  database: pencet
